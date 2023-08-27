@@ -39,6 +39,16 @@ INSTALLED_APPS = [
     "django.contrib.staticfiles",
     'backend_app',  # 添加你的应用名称
 ]
+CACHES = {
+    "default": {
+        "BACKEND": "django_redis.cache.RedisCache",
+        "LOCATION": "redis://127.0.0.1:6379/0",  # Redis 服务器的地址和端口
+        "OPTIONS": {
+            "CLIENT_CLASS": "django_redis.client.DefaultClient",
+        }
+    }
+}
+CELERY_RESULT_BACKEND = 'db+sqlite:///results.sqlite3'
 
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",

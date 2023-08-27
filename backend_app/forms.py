@@ -7,6 +7,7 @@ class UploadImageForm(forms.Form):
     user_id = forms.CharField(max_length=100)
     image = forms.ImageField()
 
+    # 数据有效性判断,image/png,image/jpeg,image/gif等等
     def clean_image(self):
         image = self.cleaned_data.get('image')
         if not image.content_type.startswith('image'):

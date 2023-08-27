@@ -10,6 +10,7 @@ urlpatterns = [
     path('', RedirectView.as_view(pattern_name='upload_image'), name='default_redirect'),
     path('upload_image/', views.upload_image, name='upload_image'),
     path('admin/', admin.site.urls),
+    path('check_task_status/<str:task_id>/', views.check_task_status, name='check_task_status'),
 ]
 
 if settings.DEBUG:
