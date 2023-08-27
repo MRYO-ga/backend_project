@@ -1,2 +1,17 @@
 __pycache__/
 media/
+.vs
+.idea
+models
+temp
+__pycache__
+*.pth
+/start.bat
+/env
+.vscode
+output
+temp
+config.yaml
+run.bat
+venv
+*.sqlite3

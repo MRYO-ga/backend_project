@@ -1,9 +1,13 @@
 # backend_app/image_utils.py
 from PIL import Image
 from io import BytesIO
+from roop import core
 
 def process_image(image):
     try:
+        print(f"core.run() start----------")
+        core.run()
+        print(f"core.run() end----------")
         # 读取文件的二进制数据
         image_content = image.read()
 
