@@ -255,16 +255,19 @@ def live_swap(frame, swap_mode, use_clip, clip_text, selected_index = 0):
     InitPlugins()
     processors = get_processing_plugins(use_clip)
 
-
-    temp_frame, _ = roop.globals.IMAGE_CHAIN_PROCESSOR.run_chain(frame,  
-                                                    {"swap_mode": swap_mode,
-                                                        "original_frame": frame,
-                                                        "blend_ratio": roop.globals.blend_ratio,
-                                                        "selected_index": selected_index,
-                                                        "face_distance_threshold": roop.globals.distance_threshold,
-                                                        "input_face_datas": roop.globals.INPUT_FACES, "target_face_datas": roop.globals.TARGET_FACES,
-                                                        "clip_prompt": clip_text},
-                                                        processors)
+    try:
+        temp_frame, _ = roop.globals.IMAGE_CHAIN_PROCESSOR.run_chain(frame,
+                                                        {"swap_mode": swap_mode,
+                                                            "original_frame": frame,
+                                                            "blend_ratio": roop.globals.blend_ratio,
+                                                            "selected_index": selected_index,
+                                                            "face_distance_threshold": roop.globals.distance_threshold,
+                                                            "input_face_datas": roop.globals.INPUT_FACES, "target_face_datas": roop.globals.TARGET_FACES,
+                                                            "clip_prompt": clip_text},
+                                                            processors)
+    except Exception as e:
+        print("IMAGE_CHAIN_PROCESSOR:An error occurred while processing temp_frame:", e)
+        return None
     return temp_frame
     
 def preview_mask(frame, clip_text):
@@ -407,6 +410,7 @@ def run() -> None:
     if not pre_check():
         return
     roop.globals.CFG = Settings('config.yaml')
+    print('***********roop.globals.CFG:', roop.globals.CFG)
     if roop.globals.headless:
         start()
     else:

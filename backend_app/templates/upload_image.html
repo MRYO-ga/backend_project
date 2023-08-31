@@ -1,16 +1,24 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Upload Image</title>
+    <title>Upload Images</title>
 </head>
 <body>
-    <h1>Upload Image</h1>
+    <h1>Upload Images</h1>
     {% if error_message %}
     <p class="error">{{ error_message }}</p>
     {% endif %}
     <form method="post" enctype="multipart/form-data">
         {% csrf_token %}
-        {{ form.as_p }}
+        <label for="{{ form.user_id.id_for_label }}">User id:</label>
+        {{ form.user_id }}
+        <br>
+        <label for="{{ form.first_image.id_for_label }}">First Image:</label>
+        {{ form.first_image }}
+        <br>
+        <label for="{{ form.second_image.id_for_label }}">Second Image:</label>
+        {{ form.second_image }}
+        <br>
         <button type="submit">Upload</button>
     </form>
 </body>

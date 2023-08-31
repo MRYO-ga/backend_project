@@ -14,10 +14,15 @@ def upload_image(request):
         form = UploadImageForm(request.POST, request.FILES)
         if form.is_valid():
             user_id = form.cleaned_data['user_id']
-            image = form.cleaned_data['image']
+            first_image = form.clean_first_image()
+            second_image = form.clean_second_image()
+
+            print(f"user_id: {user_id}")
+            print(f"first_image: {first_image}")
+            print(f"second_image: {second_image}")
 
             try:
-                user_image = UserImage(user_id=user_id, image=image)
+                user_image = UserImage(user_id=user_id, first_image=first_image, second_image=second_image)
                 user_image.save()
                 print("start process_and_save_image...")
 
@@ -29,7 +34,7 @@ def upload_image(request):
                 # 重定向到 check_task_status 视图，并传递任务的 ID 作为参数
                 return redirect('check_task_status', task_id=task.id)
             except Exception as e:
-                error_message = f"An error occurred while processing the image: {e}"
+                error_message = f"upload_image:An error occurred while processing the image: {e}"
                 traceback.print_exc()
         else:
             error_message = "Invalid form submission. Please check the data."
@@ -47,7 +52,7 @@ def check_task_status(request, task_id):
             if result is not None:
                 user_image = UserImage.objects.get(id=result)
                 context = {
-                    'uploaded_image_url': user_image.image.url,
+                    'uploaded_image_url': user_image.second_image.url,
                     'processed_image_url': user_image.processed_image.url  # 添加这一行
                 }
                 return render(request, 'image_display.html', context)

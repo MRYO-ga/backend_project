@@ -3,7 +3,8 @@ from django.db import models
 
 class UserImage(models.Model):
     user_id = models.CharField(max_length=100)
-    image = models.ImageField(upload_to='user_images/')
+    first_image = models.ImageField(upload_to='user_images/', blank=True, null=True, default=None)
+    second_image = models.ImageField(upload_to='user_images/', blank=True, null=True, default=None)
     processed_image = models.ImageField(upload_to='processed_images/', blank=True, null=True)
     created_at = models.DateTimeField(auto_now_add=True)
 

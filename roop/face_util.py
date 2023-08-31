@@ -10,6 +10,9 @@ import numpy as np
 from roop.capturer import get_video_frame
 from roop.utilities import resolve_relative_path, conditional_download
 
+from PIL import Image
+from io import BytesIO
+
 FACE_ANALYSER = None
 THREAD_LOCK_ANALYSER = threading.Lock()
 THREAD_LOCK_SWAPPER = threading.Lock()
@@ -44,8 +47,33 @@ def get_all_faces(frame: Frame) -> Any:
         faces = get_face_analyser().get(frame)
         return sorted(faces, key = lambda x : x.bbox[0])
     except:
+        print('get_all_faces error!!')
         return None
 
+
+def extract_face_images_from_pillow_image(src_image):
+    face_data = []
+
+    image_content = src_image.read()
+    source_image = cv2.imdecode(np.frombuffer(image_content, np.uint8), cv2.IMREAD_COLOR)
+
+    # pillow_image = Image.open(BytesIO(image_content))
+    # source_image = np.array(pillow_image)
+
+    faces = get_all_faces(source_image)
+    if faces is None:
+        return face_data
+
+    i = 0
+    for face in faces:
+        (startX, startY, endX, endY) = face['bbox'].astype("int")
+        face_temp = source_image[startY:endY, startX:endX]
+        print(f"Bbox: ({startX}, {startY}) - ({endX}, {endY})")
+        if face_temp.size < 1:
+            continue
+        i += 1
+        face_data.append([face, face_temp])
+    return face_data
 
 def extract_face_images(source_filename, video_info):
     face_data = []

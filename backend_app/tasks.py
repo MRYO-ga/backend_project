@@ -2,29 +2,47 @@
 from celery import shared_task
 from .models import UserImage
 from .image_utils import process_image
-from io import BytesIO
 from django.core.files.base import ContentFile
-from django.shortcuts import render
-# from time import sleep
+import roop.globals
+from settings import Settings
+import cv2
+
+from django.core.files.storage import default_storage
 
 @shared_task(retry_kwargs={'max_retries': 0})
 def process_and_save_image(user_image_id):
     print("任务_1已运行！")
     try:
         user_image_model = UserImage.objects.get(id=user_image_id)
-        processed_image = process_image(user_image_model.image)
-        print("process image sucessed")
-        buffer = BytesIO()
-        processed_image.save(buffer, format='JPEG')
-        print("save image file sucessed")
-        # sleep(10)
-        # print("sleep ok------")
-        user_image_model.processed_image.save(user_image_model.image.name, ContentFile(buffer.getvalue()), save=True)
-        print("save user image model sucessed")
+
+        first_image = user_image_model.first_image
+        second_image = user_image_model.second_image
+        roop.globals.CFG = Settings('config.yaml')
+
+        user_image = UserImage.objects.get(id=user_image_id)
+        fir_image_path = user_image.first_image.path
+        sec_image_path = user_image.second_image.path
+        first_image_absolute_path = default_storage.path(fir_image_path)
+        second_image_absolute_path = default_storage.path(sec_image_path)
+        print('***********first_image_absolute_path:', first_image_absolute_path)
+        print('***********second_image_absolute_path:', second_image_absolute_path)
+
+        processed_image = process_image(first_image_absolute_path, second_image_absolute_path)
+        if processed_image is None:
+            print("process image failed")
+            return None
+
+        # 将 OpenCV 图像数据保存到数据库中
+        _, img_encoded = cv2.imencode('.jpg', processed_image)
+        processed_image_content = ContentFile(img_encoded.tostring())
+        processed_image_name = user_image_model.first_image.name.split('.')[0] + '_processed.' + user_image_model.first_image.name.split('.')[-1]
+        user_image_model.processed_image.save(processed_image_name, processed_image_content, save=True)
+        print("Processed image saved successfully.")
+
         return user_image_model.id
 
     except Exception as e:
-        print(f"An error occurred while processing the image: {e}")
+        print(f"process_and_save_image:An error occurred while processing the image: {e}")
         return None
 
 # process_image_complete 视图函数:该函数无效！！
