@@ -22,10 +22,10 @@ execution_providers: List[str] = []
 execution_threads = None
 headless = True
 log_level = 'error'
-selected_enhancer = None
-face_swap_mode = None
-blend_ratio = 0.5
-distance_threshold = 0.65
+selected_enhancer = "GFPGAN"
+face_swap_mode = "selected"
+blend_ratio = 0.65
+distance_threshold = 0.8
 default_det_size = True
 
 processing = False 

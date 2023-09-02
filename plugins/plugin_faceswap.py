@@ -32,12 +32,10 @@ class Faceswap(ChainImgPlugin):
 
 
     def process(self, frame, params:dict):
-        print("Faceswap procesing.1")
         if not "input_face_datas" in params or len(params["input_face_datas"]) < 1:
             params["face_detected"] = False
             return  frame
         
-        print("Faceswap procesing.2")
         temp_frame = frame
         params["face_detected"] = True
         params["processed_faces"] = []
@@ -49,26 +47,21 @@ class Faceswap(ChainImgPlugin):
             face_index = 0
 
 
-        print("Faceswap procesing.3")
         if params["swap_mode"] == "first":
             face = get_first_face(frame)
             if face is None:
                 params["face_detected"] = False
                 return frame
             params["processed_faces"].append(face)
-            print("Faceswap procesing.4")
             frame = swap_face(params["input_face_datas"][face_index], face, frame) 
-            print("Faceswap procesing.5")
             return frame
 
         else:
-            print("Faceswap procesing.6")
             faces = get_all_faces(frame)
             if faces is None:
                 params["face_detected"] = False
                 return frame
-            
-            print("Faceswap procesing.7")
+
             dist_threshold = params["face_distance_threshold"]
 
             if params["swap_mode"] == "all":

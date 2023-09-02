@@ -55,24 +55,18 @@ class ChainImgProcessor(JaaCore):
 
 
 
-        print("run_chain procesing.1")
         # run processing
         if self.is_demo_row_render:
             import cv2
             import numpy as np
-            print("run_chain procesing.2")
             height, width, channels = img.shape
-            print("run_chain procesing.3")
             img_blank = np.zeros((height+30, width*(1+len(chain_ar)), 3), dtype=np.uint8)
-            print("run_chain procesing.4")
             img_blank.fill(255)
 
-            print("run_chain procesing.5")
             y = 30
             x = 0
             img_blank[y:y + height, x:x + width] = img
 
-            print("run_chain procesing.6")
             # Set the font scale and thickness
             font_scale = 1
             thickness = 2
@@ -80,12 +74,9 @@ class ChainImgProcessor(JaaCore):
             # Set the font face to a monospace font
             font_face = cv2.FONT_HERSHEY_SIMPLEX
 
-            print("run_chain procesing.7")
             cv2.putText(img_blank, "original", (x+4, y-7), font_face, font_scale, (0, 0, 0), thickness)
-            print("run_chain procesing.8")
 
 
-        print("run_chain procesing.9")
         i = 0
         for proc_id in chain_ar:
             i += 1
@@ -98,11 +89,9 @@ class ChainImgProcessor(JaaCore):
                     img_blank[y:y + height, x:x + width] = img
                     cv2.putText(img_blank, proc_id, (x + 4, y - 7), font_face, font_scale, (0, 0, 0), thickness)
 
-        print("run_chain procesing.10")
         if self.is_demo_row_render:
             return img_blank, params
 
-        print("run_chain procesing.11")
         return img, params
 
     # ---------------- init translation stuff ----------------

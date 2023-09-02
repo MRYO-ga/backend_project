@@ -3,8 +3,6 @@ from celery import shared_task
 from .models import UserImage
 from .image_utils import process_image
 from django.core.files.base import ContentFile
-import roop.globals
-from settings import Settings
 import cv2
 
 from django.core.files.storage import default_storage
@@ -14,10 +12,6 @@ def process_and_save_image(user_image_id):
     print("任务_1已运行！")
     try:
         user_image_model = UserImage.objects.get(id=user_image_id)
-
-        first_image = user_image_model.first_image
-        second_image = user_image_model.second_image
-        roop.globals.CFG = Settings('config.yaml')
 
         user_image = UserImage.objects.get(id=user_image_id)
         fir_image_path = user_image.first_image.path

@@ -97,6 +97,7 @@ def extract_face_images(source_filename, video_info):
     for face in faces:
         (startX, startY, endX, endY) = face['bbox'].astype("int")
         face_temp = source_image[startY:endY, startX:endX]
+        print(f"Face {i}, startX: {startX}, startY: {startY}, endX: {endX}, endY: {endY}")
         if face_temp.size < 1:
             continue
         i += 1
