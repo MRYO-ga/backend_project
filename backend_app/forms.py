@@ -5,6 +5,8 @@ from django.utils.translation import gettext_lazy as _
 
 class UploadImageForm(forms.Form):
     user_id = forms.CharField(max_length=100)
+    src_face_index = forms.IntegerField()
+    dst_face_index = forms.IntegerField()
     first_image = forms.ImageField(label='First Image')
     second_image = forms.ImageField(label='Second Image')
 

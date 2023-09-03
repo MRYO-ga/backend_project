@@ -9,7 +9,7 @@ from roop.capturer import get_image_frame
 import roop.globals
 from settings import Settings
 
-def process_image(src_image, dst_image):
+def process_image(src_image, dst_image, input_face_index, output_face_index):
     try:
         if src_image is None:
             print("Source image is missing.")
@@ -25,8 +25,8 @@ def process_image(src_image, dst_image):
             InitPlugins()
             # print(f'Available providers {roop.globals.execution_providers}, using {roop.globals.execution_providers[0]} - Device:{util.get_device()}')
 
-        default_select_src_index = 0
-        default_select_dst_index = 0 #暂时无效
+        default_select_src_index = input_face_index
+        default_select_dst_index = output_face_index #暂时无效
         src_face = []
         dst_face = []
         src_all_faces = extract_face_images(src_image,  (False, 0))

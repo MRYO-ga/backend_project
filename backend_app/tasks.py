@@ -13,7 +13,11 @@ def process_and_save_image(user_image_id):
     try:
         user_image_model = UserImage.objects.get(id=user_image_id)
 
+        print("user_image_model", user_image_model)
         user_image = UserImage.objects.get(id=user_image_id)
+        input_face_index = user_image.src_face_index
+        output_face_index = user_image.dst_face_index
+        print("user_image ", user_image, input_face_index, output_face_index)
         fir_image_path = user_image.first_image.path
         sec_image_path = user_image.second_image.path
         first_image_absolute_path = default_storage.path(fir_image_path)
@@ -21,7 +25,7 @@ def process_and_save_image(user_image_id):
         print('***********first_image_absolute_path:', first_image_absolute_path)
         print('***********second_image_absolute_path:', second_image_absolute_path)
 
-        processed_image = process_image(first_image_absolute_path, second_image_absolute_path)
+        processed_image = process_image(first_image_absolute_path, second_image_absolute_path, input_face_index, output_face_index)
         if processed_image is None:
             print("process image failed")
             return None
