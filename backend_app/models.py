@@ -3,6 +3,8 @@ from django.db import models
 
 class UserImage(models.Model):
     user_id = models.CharField(max_length=100)
+    task_id = models.CharField(max_length=255, null=True, blank=True)
+    status = models.CharField(max_length=255, null=True, blank=True)
     src_face_index = models.IntegerField()
     dst_face_index = models.IntegerField()
     first_image = models.ImageField(upload_to='user_images/', blank=True, null=True, default=None)

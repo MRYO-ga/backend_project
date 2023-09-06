@@ -38,15 +38,19 @@ def upload_image(request):
                                        first_image=first_image,
                                        second_image=second_image)
                 user_image.save()
-                print("start process_and_save_image...")
 
                 # 将图像处理任务添加到Celery队列中，不等待任务完成
                 task = process_and_save_image.apply_async(args=[user_image.id])
+                user_image.task_id = task.id
+                user_image.status = 'PENDING'
+                user_image.save()
+                print("start process_and_save_image...")
 
                 # 立即返回响应，告知前端任务已启动
                 response_data = {
                     'status': 'PENDING',
                     'task_id': task.id,
+                    'user_id': user_id,
                 }
                 if DEBUG:
                     return redirect('check_task_status', task_id=task.id)
@@ -63,7 +67,115 @@ def upload_image(request):
         form = UploadImageForm()
         return render(request, 'upload_image.html', {'form': form})
 
-def check_task_status(request, task_id):
+def get_completed_tasks_on_user(request, user_id):
+    try:
+        # 查询当前用户的所有已完成的任务
+        completed_task = UserImage.objects.filter(user_id=user_id, status='SUCCESS')
+
+        print("start completed_task...", completed_task)
+        # 构造响应数据，包括已完成任务的信息
+        task_list = []
+        for task in completed_task:
+            task_info = {
+                'user_id': task.user_id,
+                'task_id': task.task_id,
+                'status': task.status,
+                'uploaded_image_url': task.second_image.url,
+                'processed_image_url': task.processed_image.url
+            }
+            task_list.append(task_info)
+
+        response_data = {
+            'status': 'GET_SUCCESS',
+            'completed_tasks': task_list,
+        }
+
+        return JsonResponse(response_data)
+    except UserImage.DoesNotExist:
+        # 如果找不到已完成的任务，返回相应的状态信息
+        return JsonResponse({'status': 'NO_COMPLETED_TASKS', 'completed_tasks': []})
+
+def get_pending_tasks_on_user(request, user_id):
+    try:
+        # 查询当前用户的所有未完成的任务
+        pending_tasks = UserImage.objects.filter(user_id=user_id, status='PENDING')
+
+        print("start pending_tasks...", pending_tasks)
+        # 构造响应数据，包括未完成任务的信息
+        task_list = []
+        for task in pending_tasks:
+            task_info = {
+                'user_id': task.user_id,
+                'task_id': task.task_id,
+                'status': task.status,
+                'uploaded_image_url': task.second_image.url,
+                'processed_image_url': task.processed_image.url
+            }
+            task_list.append(task_info)
+
+        response_data = {
+            'status': 'GET_SUCCESS',
+            'pending_tasks': task_list,
+        }
+
+        return JsonResponse(response_data)
+    except UserImage.DoesNotExist:
+        # 如果找不到未完成的任务，返回相应的状态信息
+        return JsonResponse({'status': 'NO_PENDING_TASKS', 'pending_tasks': []})
+
+def check_task_status_on_userid(request, user_id):
+    try:
+        # 查询该用户的最新完成任务
+        pending_tasks = UserImage.objects.filter(user_id=user_id, status='PENDING')
+        print("start check_task_status_on_userid user_image...", pending_tasks)
+        task_list = []
+        for task in pending_tasks:
+            # 获取任务的 task_id
+            task_id = task.task_id
+
+            # 创建 AsyncResult 对象来获取任务状态
+            task_status = AsyncResult(task_id)
+
+            if task_status.ready():  # 如果任务已完成
+                # 获取处理后的图像 URL
+                second_image_url = task.second_image.url
+                processed_image_url = task.processed_image.url
+                task_status = 'SUCCESS'
+            else:
+                # 如果任务还在进行中
+                task_status = 'PENDING'
+                second_image_url = None
+                processed_image_url = None
+            
+            task_info = {
+                'user_id': task.user_id,
+                'task_id': task.task_id,
+                'status': task_status,
+                'uploaded_image_url': second_image_url,
+                'processed_image_url': processed_image_url
+            }
+            task.status = task_status
+            task.processed_image = processed_image_url
+            task.save()
+            print("user{task} task.status", task.status)
+            task_list.append(task_info)
+
+        response_data = {
+            'status': 'GET_SUCCESS',
+            'tasks': task_list,
+        }
+        return JsonResponse(response_data)
+    except UserImage.DoesNotExist:
+        # 如果找不到该用户的任务，返回相应的状态信息
+        response_data = {
+            'status': 'NO_TASK',  # 可以定义一个特殊的状态表示没有任务
+            'user_id': user_id,
+            'uploaded_image_url': None,
+            'processed_image_url': None
+        }
+        return JsonResponse(response_data)
+
+def check_task_status_on_taskid(request, task_id):
     task = AsyncResult(task_id)
     if task.ready():
         if task.successful():
