@@ -26,7 +26,7 @@ SECRET_KEY = "django-insecure-i+mnw%+4p$4+2#e#y(vtjttptulbsykn7uzn#yq*&7q-vstms)
 DEBUG = True
 
 #ALLOWED_HOSTS = [] 
-ALLOWED_HOSTS = ['*']  # 或者使用域名 ['example.com']   '111.230.12.105'
+ALLOWED_HOSTS = ['43.136.95.94']  # 或者使用域名 ['example.com']   '111.230.12.105'
 
 # Application definition
 
