@@ -7,6 +7,7 @@ from django.views.decorators.csrf import csrf_exempt
 import json
 from datetime import date
 import requests
+from django.contrib.auth.decorators import login_required
 
 
 @require_POST
@@ -68,7 +69,9 @@ def wechat_login(request):
 
 
 @require_POST
+# @login_required
 def get_points_by_check(request):
+    print(f"request.user.is_authenticated: {request}")
     today = date.today()
     request_data = request.body.decode("utf-8")
     data = json.loads(request_data)
@@ -83,19 +86,30 @@ def get_points_by_check(request):
             # 用户可以签到，更新最后签到日期
             user.last_check_date = today
             user.is_check = True
-            user.points += 1
+            if user.points < 50:
+                user.points += 1
             user.save()
-
-        return JsonResponse(
-            {
-                "user": {
-                    "user_id": user_id,
-                    "points": user.points,
-                    "is_check": user.is_check,
-                },
-                "message": "签到成功",
-            }
-        )
+            return JsonResponse(
+                {
+                    "user": {
+                        "user_id": user_id,
+                        "points": user.points,
+                        "is_check": user.is_check,
+                    },
+                    "message": "签到成功",
+                }
+            )
+        else:
+            return JsonResponse(
+                {
+                    "user": {
+                        "user_id": user_id,
+                        "points": user.points,
+                        "is_check": user.is_check,
+                    },
+                    "message": "今天已经签到过了",
+                }
+            )
     else:
         return JsonResponse({"message": "用户未登录"})
 
