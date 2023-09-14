@@ -93,12 +93,10 @@ def upload_first_image(request):
             input_face_index = form.cleaned_data["src_face_index"]
             output_face_index = form.cleaned_data["dst_face_index"]
             first_image = form.clean_first_image()
-
+            # check has points
             user = User.objects.get(user_id=user_id)
             if user.points < 1:
                 return JsonResponse({"status": "FAILURE", "error_message": "积分不足"})
-            user.points -= 1
-            user.save()
             try:
                 user_image = UserImage(
                     user_id=user_id,
@@ -154,7 +152,10 @@ def upload_second_image(request):
                 print("start process_and_save_image...")
                 updated_user_image.task_id = task.id
                 updated_user_image.save()
-
+                # 加入队列了再减积分
+                user = User.objects.get(user_id=user_id)
+                user.points -= 1
+                user.save()
                 # 立即返回响应，告知前端任务已启动
                 response_data = {
                     "status": "SUCCESS",

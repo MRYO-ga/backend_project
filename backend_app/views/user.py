@@ -122,6 +122,15 @@ def get_user(request):
 
     if user_id:
         user = User.objects.get(user_id=user_id)
+        today = date.today()
+
+        if user.last_check_date != today:
+            # 用户可以签到，更新最后签到日期
+            user.last_check_date = today
+            user.is_check = True
+            if user.points < 50:
+                user.points += 1
+            user.save()
         return JsonResponse(
             {
                 "user": {
