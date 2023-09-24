@@ -1,6 +1,6 @@
 # models.py
 from django.db import models
-
+from django.core.validators import MaxValueValidator
 
 class UserImage(models.Model):
     user_id = models.CharField(max_length=100)
@@ -28,7 +28,10 @@ class UserImage(models.Model):
 
 class User(models.Model):
     user_id = models.CharField(max_length=100)
-    points = models.IntegerField()
+    points = models.PositiveIntegerField(
+        validators=[MaxValueValidator(50)],
+        default=0  # 默认值可以根据需要设置
+    )
     is_check = models.BooleanField(default=False)
     last_check_date = models.DateField(null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)

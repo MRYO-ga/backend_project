@@ -53,6 +53,16 @@ class SecondImageForm(forms.Form):
             raise ValidationError(_("File is not an image."))
         return image
 
+class EditImageForm(forms.Form):
+    user_id = forms.CharField(max_length=100)
+    image = forms.ImageField(label="Image")
+
+    def clean_image(self):
+        image = self.cleaned_data.get("image")
+        if not image.content_type.startswith("image"):
+            raise ValidationError(_("File is not an image."))
+        return image
+
 
 # class UploadImageForm(forms.Form):
 #     user_id = forms.CharField(max_length=100)
